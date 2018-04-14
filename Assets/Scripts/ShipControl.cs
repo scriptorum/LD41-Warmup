@@ -29,8 +29,8 @@ public class ShipControl : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			// CameraDirector.instance.RotateTo(sideways ? -90f : 0f);
-			CameraDirector.instance.SetRotation(sideways ? -90f : 0f);
+			CameraDirector.instance.RotateTo(sideways ? -90f : 0f, 0.1f);
+			// CameraDirector.instance.SetRotation(sideways ? -90f : 0f);
 		}
 
 		if (sideways)

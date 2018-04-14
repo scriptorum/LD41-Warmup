@@ -254,7 +254,7 @@ MonoBehaviour:
   defShakeDuration: 0.25
   defSpeed: 1
   shakeFadeOut: 1
-  previewShake: 1
+  previewShake: 0
   useCameraMain: 1
 --- !u!1 &345136934
 GameObject:
