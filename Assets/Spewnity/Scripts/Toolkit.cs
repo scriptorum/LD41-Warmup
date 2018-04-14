@@ -369,6 +369,11 @@ namespace Spewnity
             return go.transform.GetChild(name).gameObject;
         }
 
+        public static T GetChildComponent<T>(this GameObject go, string name)
+        {
+            return go.GetChild(name).GetComponent<T>();
+        }
+
         /// <summary>
         /// Returns all game objects in the scene 
         /// </summary>
