@@ -44,10 +44,14 @@ namespace Spewnity
         private float shakeTimeRemaining = 0f;
         private Vector3 camCenter;
         private Camera cam;
-        private float initialZoom;
+        private float startZoom;
         private float targetZoom;
         private float zoomTimeRemaining = 0f;
         private float zoomSpeed;
+        private float rotTimeRemaining = 0f;
+        private float targetRot;
+        private float rotSpeed;
+        private float startRot;
 
         void Awake()
         {
@@ -71,7 +75,7 @@ namespace Spewnity
                     throw new UnityException("Cannot locate main camera");
                 else throw new UnityException("Since useCameraMain is disabled, CameraDirector must be attached to the camera GameObject");
             }
-            else initialZoom = cam.orthographic ? cam.orthographicSize : cam.fieldOfView;
+            else startZoom = cam.orthographic ? cam.orthographicSize : cam.fieldOfView;
         }
         void FixedUpdate()
         {
@@ -121,6 +125,27 @@ namespace Spewnity
             if (cam.orthographic)
                 cam.orthographicSize = amount;
             else cam.fieldOfView = amount;
+        }
+
+        private void UpdateRotation()
+        {
+            if (rotTimeRemaining <= 0f)
+                return;
+            rotTimeRemaining -= Time.deltaTime;
+
+            float amount = 0;
+            if (rotTimeRemaining < 0)
+            {
+                rotTimeRemaining = 0;
+                amount = targetRot;
+            }
+            else
+            {
+                float t = 1 - rotTimeRemaining / rotSpeed;
+                amount = Mathf.Lerp(startRot, targetRot, t);
+            }
+
+            cam.transform.localRotation = Quaternion.Euler(0, 0, amount);
         }
 
         private void UpdateCamCenter()
@@ -200,6 +225,11 @@ namespace Spewnity
             zoomTimeRemaining = 0f;
         }
 
+        public void StopRotating()
+        {
+            rotTimeRemaining = 0f;
+        }
+
         /// <summary>
         /// Resets the zoom level to its initial value.
         /// </summary>
@@ -257,7 +287,7 @@ namespace Spewnity
         public void SetZoom(float scale)
         {
             StopZooming();
-            float amount = initialZoom * scale;
+            float amount = startZoom * scale;
             if (cam.orthographic)
                 cam.orthographicSize = amount;
             else cam.fieldOfView = amount;
@@ -274,7 +304,18 @@ namespace Spewnity
         public void ZoomTo(float scale, float? speed = null)
         {
             zoomSpeed = zoomTimeRemaining = (speed == null ? this.defSpeed : (float) speed);
-            targetZoom = initialZoom * scale;
+            targetZoom = startZoom * scale;
+        }
+
+        public void SetRotation(float angle)
+        {
+            StopRotating();
+            cam.transform.localRotation = Quaternion.Euler(0, 0, angle);
+        }
+
+        public void RotateTo(float angle, float? speed = null)
+        {
+            rotSpeed = rotTimeRemaining =  (speed == null ? this.defSpeed : (float) speed);
         }
     }
 }
