@@ -34,9 +34,8 @@ public class ShipControl : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			// CameraDirector.instance.RotateTo(sideways ? transform.localRotation.eulerAngles.z + 90f : 0f, 0.2f);
-			CameraDirector.instance.RotateTo(transform.localRotation.eulerAngles.z + (sideways ? 0f : 90f), 0.2f);
-			if (sideways) StopFollow();
+			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 0f : 90f));
+			if (sideways) CameraDirector.instance.CutTo(new Vector3(transform.position.x - Camera.main.orthographicSize * 3/4, transform.position.y, transform.position.z));
 			else SetFollow();
 		}
 
