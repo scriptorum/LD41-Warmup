@@ -12,7 +12,7 @@ public class ShipControl : MonoBehaviour
 	private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
-	private readonly float CAM_ZOOM = 1.5f;
+	private readonly float CAM_ZOOM = 1.3f;
 	private readonly float SIDE_THRUST_SPEED = 8f;
 	private readonly float SIDE_THRUST_BURST = 3f;
 	private readonly int MIN_SIDE_THRUST_BURST = 1;
@@ -51,7 +51,7 @@ public class ShipControl : MonoBehaviour
 		else
 		{
 			Thrust(-y);
-			SideThrust(x);
+			SideThrust( y < 0 ? x : -x);
 			CameraDirector.instance.SetZoom(1f + Mathf.Abs(-y) * CAM_ZOOM);
 			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
 		}
