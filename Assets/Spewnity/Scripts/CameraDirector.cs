@@ -89,8 +89,9 @@ namespace Spewnity
             }
 #endif			
 
-             UpdateRotation();
-             UpdateZoomLevel();
+            UpdateRotation();
+            UpdateZoomLevel();
+
             if (shakeTimeRemaining <= 0f && followTarget == null && dollying == false)
                 return;
 
@@ -318,7 +319,7 @@ namespace Spewnity
         {
             float z = cam.transform.localEulerAngles.z;
             startRot = z > 180 ? z - 360 : z;
-            rotSpeed = rotTimeRemaining =  (speed == null ? this.defSpeed : (float) speed);
+            rotSpeed = rotTimeRemaining = (speed == null ? this.defSpeed : (float) speed);
             targetRot = angle;
         }
     }

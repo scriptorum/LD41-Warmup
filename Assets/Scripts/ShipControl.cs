@@ -10,10 +10,10 @@ public class ShipControl : MonoBehaviour
 	private Rigidbody2D rb;
 	private ParticleSystem sideThrustersFront, sideThrustersBack;
 
-	private readonly float SLIDE_SPEED = 20.0f;
-	private readonly float THRUST_BURST = 25f;
-	private readonly int MIN_THRUST = 5;
-	private readonly float CAM_ZOOM = 25f;
+	private readonly float THRUST_SPEED = 25f;
+	private readonly float THRUST_BURST = 30f;
+	private readonly int MIN_BURST = 5;
+	private readonly float CAM_ZOOM = 1.5f;
 
 	void Awake()
 	{
@@ -29,7 +29,7 @@ public class ShipControl : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			CameraDirector.instance.RotateTo(sideways ? -90f : 0f, 0.1f);
+			CameraDirector.instance.RotateTo(sideways ? -90f : 0f, 0.2f);
 			if (sideways) StopFollow();
 			else SetFollow();
 		}
@@ -37,18 +37,18 @@ public class ShipControl : MonoBehaviour
 		if (sideways)
 		{
 			float x = Input.GetAxis("Horizontal");
-			Slide(Time.deltaTime * x, true);
+			Thrust(x, true);
 		}
 		else
 		{
 			float y = Input.GetAxis("Vertical");
-			Slide(Time.deltaTime * -y);
+			Thrust(-y);
 		}
 	}
 
 	private void SetFollow()
 	{
-		CameraDirector.instance.FollowTarget(transform, 0f);
+		CameraDirector.instance.FollowTarget(transform, 0.2f);
 	}
 
 	private void StopFollow()
@@ -57,15 +57,15 @@ public class ShipControl : MonoBehaviour
 		CameraDirector.instance.CutTo(transform.position);
 	}
 
-	private void Slide(float amount, bool defaultZoom = false)
+	private void Thrust(float amount, bool defaultZoom = false)
 	{
-		rb.transform.Translate(amount * SLIDE_SPEED, 0, 0, Space.Self);
+		rb.transform.Translate(amount * Time.deltaTime * THRUST_SPEED, 0, 0, Space.Self);
 		if (amount < 0)
-			sideThrustersBack.Emit(Mathf.CeilToInt(-amount * THRUST_BURST) + MIN_THRUST);
+			sideThrustersBack.Emit(Mathf.CeilToInt(-amount * Time.deltaTime * THRUST_BURST) + MIN_BURST);
 		else if (amount > 0)
-			sideThrustersFront.Emit(Mathf.CeilToInt(amount * THRUST_BURST) + MIN_THRUST);
+			sideThrustersFront.Emit(Mathf.CeilToInt(amount * Time.deltaTime * THRUST_BURST) + MIN_BURST);
 		else return;
 
-		// CameraDirector.instance.SetZoom(defaultZoom ? 1f : 1f + Mathf.Abs(amount) * CAM_ZOOM);
+		CameraDirector.instance.SetZoom(defaultZoom ? 1f : 1f + Mathf.Abs(amount) * CAM_ZOOM);
 	}
 }
