@@ -12,8 +12,8 @@ public class ShipControl : MonoBehaviour
 	private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
-	private readonly float CAM_ZOOM = 1.3f;
-	private readonly float SIDE_THRUST_SPEED = 8f;
+	private readonly float START_CAM_ZOOM = 1f;
+	private readonly float FAST_CAM_ZOOM = 1.2f;
 	private readonly float SIDE_THRUST_BURST = 3f;
 	private readonly int MIN_SIDE_THRUST_BURST = 1;
     private readonly float ROTATE_SPEED = 180f;
@@ -25,7 +25,12 @@ public class ShipControl : MonoBehaviour
 		foreThruster = gameObject.GetChildComponent<ParticleSystem>("ForeThruster");
 		portThruster = gameObject.GetChildComponent<ParticleSystem>("PortThruster");
 		starboardThruster = gameObject.GetChildComponent<ParticleSystem>("StarboardThruster");
+	}
+
+	void Start()
+	{
 		SetFollow();
+		CameraDirector.instance.SetZoom(START_CAM_ZOOM);
 	}
 
 	// Update is called once per frame
@@ -44,14 +49,14 @@ public class ShipControl : MonoBehaviour
 
 		if (sideways)
 		{
-			CameraDirector.instance.SetZoom(1f);
+			CameraDirector.instance.SetZoom(START_CAM_ZOOM);
 			Thrust(x);
 		}
 		else
 		{
 			Thrust(-y);
 			SideThrust( y < 0 ? x : -x);
-			CameraDirector.instance.SetZoom(1f + Mathf.Abs(-y) * CAM_ZOOM);
+			CameraDirector.instance.SetZoom(1f + Mathf.Abs(-y) * FAST_CAM_ZOOM);
 			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
 		}
 	}
