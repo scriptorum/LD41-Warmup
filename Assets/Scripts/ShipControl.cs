@@ -35,7 +35,7 @@ public class ShipControl : MonoBehaviour
 		{
 			sideways = !sideways;
 			// CameraDirector.instance.RotateTo(sideways ? transform.localRotation.eulerAngles.z + 90f : 0f, 0.2f);
-			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 0f : 90f));
+			CameraDirector.instance.RotateTo(transform.localRotation.eulerAngles.z + (sideways ? 0f : 90f), 0.2f);
 			if (sideways) StopFollow();
 			else SetFollow();
 		}
@@ -51,7 +51,7 @@ public class ShipControl : MonoBehaviour
 		else
 		{
 			Thrust(-y);
-			SideThrust(-x);
+			SideThrust(x);
 			CameraDirector.instance.SetZoom(1f + Mathf.Abs(-y) * CAM_ZOOM);
 			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
 		}
