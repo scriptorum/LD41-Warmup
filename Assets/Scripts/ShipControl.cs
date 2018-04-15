@@ -66,6 +66,6 @@ public class ShipControl : MonoBehaviour
 			sideThrustersFront.Emit(Mathf.CeilToInt(amount * THRUST_BURST) + MIN_THRUST);
 		else return;
 
-		CameraDirector.instance.SetZoom(defaultZoom ? 1f : 1f + Mathf.Abs(amount) * CAM_ZOOM);
+		// CameraDirector.instance.SetZoom(defaultZoom ? 1f : 1f + Mathf.Abs(amount) * CAM_ZOOM);
 	}
 }

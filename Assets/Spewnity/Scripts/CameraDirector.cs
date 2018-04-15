@@ -77,7 +77,7 @@ namespace Spewnity
             }
             else startZoom = cam.orthographic ? cam.orthographicSize : cam.fieldOfView;
         }
-        void FixedUpdate()
+        void Update()
         {
 #if UNITY_EDITOR			
             if (previewShake)

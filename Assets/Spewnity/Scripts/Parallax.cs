@@ -27,7 +27,7 @@ namespace Spewnity
 				cam = Camera.main;
 		}
 
-		public void LateUpdate()
+		public void Update()
 		{
 			Vector3 pos = new Vector3(cam.transform.position.x - cam.transform.position.x * parallax.x,
 				cam.transform.position.y - cam.transform.position.y * parallax.y, transform.position.z);
