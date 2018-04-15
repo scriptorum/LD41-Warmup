@@ -12,8 +12,9 @@ public class ShipControl : MonoBehaviour
 	private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
-	private readonly float START_CAM_ZOOM = 1f;
-	private readonly float FAST_CAM_ZOOM = 1.2f;
+	private readonly float CAM_ZOOM_MIN = 1f;
+	private readonly float START_CAM_ZOOM = 0f;
+	private readonly float FLYING_CAM_ZOOM = 0.6f;
 	private readonly float SIDE_THRUST_BURST = 3f;
 	private readonly int MIN_SIDE_THRUST_BURST = 1;
     private readonly float ROTATE_SPEED = 180f;
@@ -32,7 +33,7 @@ public class ShipControl : MonoBehaviour
 	void Start()
 	{
 		SetFollow();
-		CameraDirector.instance.SetZoom(START_CAM_ZOOM);
+		CameraDirector.instance.SetZoom(START_CAM_ZOOM + CAM_ZOOM_MIN);
 	}
 
 	// Update is called once per frame
@@ -58,7 +59,7 @@ public class ShipControl : MonoBehaviour
 		{
 			Thrust(y);
 			SideThrust( y < 0 ? x : -x);
-			CameraDirector.instance.SetZoom(1f + Mathf.Abs(-y) * FAST_CAM_ZOOM);
+			CameraDirector.instance.SetZoom(Mathf.Abs(-y) * FLYING_CAM_ZOOM + CAM_ZOOM_MIN);
 		}
 	}
 
