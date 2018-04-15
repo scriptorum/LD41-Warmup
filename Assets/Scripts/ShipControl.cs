@@ -8,7 +8,7 @@ public class ShipControl : MonoBehaviour
 	private bool sideways = false;
 
 	private Rigidbody2D rb;
-	private ParticleSystem foreThruster, aftThruster, portThruster, starboardThruster;
+	private ParticleSystem foreThruster, aftThruster, aftPortThruster, aftStarboardThruster, forePortThruster, foreStarboardThruster;
 	private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
@@ -23,8 +23,10 @@ public class ShipControl : MonoBehaviour
 		gameObject.SelfAssign<Rigidbody2D>(ref rb);
 		aftThruster = gameObject.GetChildComponent<ParticleSystem>("AftThruster");
 		foreThruster = gameObject.GetChildComponent<ParticleSystem>("ForeThruster");
-		portThruster = gameObject.GetChildComponent<ParticleSystem>("PortThruster");
-		starboardThruster = gameObject.GetChildComponent<ParticleSystem>("StarboardThruster");
+		aftPortThruster = gameObject.GetChildComponent<ParticleSystem>("AftPortThruster");
+		aftStarboardThruster = gameObject.GetChildComponent<ParticleSystem>("AftStarboardThruster");
+		forePortThruster = gameObject.GetChildComponent<ParticleSystem>("ForePortThruster");
+		foreStarboardThruster = gameObject.GetChildComponent<ParticleSystem>("ForeStarboardThruster");
 	}
 
 	void Start()
@@ -39,7 +41,7 @@ public class ShipControl : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 0f : 90f));
+			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 90f : 0f));
 			if (sideways) CameraDirector.instance.CutTo(new Vector3(transform.position.x - Camera.main.orthographicSize * 3/4, transform.position.y, transform.position.z));
 			else SetFollow();
 		}
@@ -49,15 +51,14 @@ public class ShipControl : MonoBehaviour
 
 		if (sideways)
 		{
-			CameraDirector.instance.SetZoom(START_CAM_ZOOM);
 			Thrust(x);
+			CameraDirector.instance.SetZoom(START_CAM_ZOOM);
 		}
 		else
 		{
-			Thrust(-y);
+			Thrust(y);
 			SideThrust( y < 0 ? x : -x);
 			CameraDirector.instance.SetZoom(1f + Mathf.Abs(-y) * FAST_CAM_ZOOM);
-			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
 		}
 	}
 
@@ -74,17 +75,25 @@ public class ShipControl : MonoBehaviour
 
 	private void Thrust(float amount)
 	{
-		rb.transform.Translate(amount * Time.deltaTime * THRUST_SPEED, 0, 0, Space.Self);
+		rb.transform.Translate(0f, amount * Time.deltaTime * THRUST_SPEED, 0f, Space.Self);
 		int particles = Mathf.CeilToInt(Mathf.Abs(amount * Time.deltaTime * THRUST_BURST) + MIN_THRUST_BURST);
-		if (amount < 0) aftThruster.Emit(particles);
-		else if (amount > 0) foreThruster.Emit(particles);
+		if (amount > 0f) aftThruster.Emit(particles);
+		else if (amount < 0f)  foreThruster.Emit(particles);
 	}
 
 	private void SideThrust(float amount)
 	{
 		transform.Rotate(0f, 0f, amount * Time.deltaTime * ROTATE_SPEED);
 		int particles = Mathf.CeilToInt(Mathf.Abs(amount * Time.deltaTime * SIDE_THRUST_BURST) + MIN_SIDE_THRUST_BURST);
-		if (amount < 0) starboardThruster.Emit(particles);
-		else if (amount > 0) portThruster.Emit(particles);		
+		if (amount < 0f)
+		{
+			 aftStarboardThruster.Emit(particles);
+			 forePortThruster.Emit(particles);
+		}
+		else if (amount > 0f)
+		{
+			aftPortThruster.Emit(particles);		
+			foreStarboardThruster.Emit(particles);		
+		}
 	}
 }
