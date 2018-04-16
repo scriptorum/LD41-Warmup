@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class ShipControl : MonoBehaviour
 {
-	private bool sideways = false;
-
 	private Rigidbody2D rb;
 	private ParticleSystem foreThruster, aftThruster, aftPortThruster, aftStarboardThruster, forePortThruster, foreStarboardThruster;
+
+	private const float ANIM_SPEED = 0.2f;
+	private bool sideways = false;
 	private float camSize;
+
 	private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
@@ -45,17 +47,21 @@ public class ShipControl : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			CameraDirector.instance.Stop().CutTo(transform.position);
+			CameraDirector.instance.Stop();
 			Input.ResetInputAxes();
 
 			if (sideways)
 			{
 				Vector3 pos = transform.position - (transform.right * camSize * PADDLE_OFFSET);
-				Debug.Log("Pos:" + transform.position + " right:" + transform.right + " camSize:" + camSize + " newPosition:" + pos);
-				CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
-				CameraDirector.instance.CutTo(pos);
+				CameraDirector.instance.RotateTo(transform.localRotation.eulerAngles.z + 90f, ANIM_SPEED);
+				CameraDirector.instance.DollyTo(pos, ANIM_SPEED);
 			}
-			else SetFollow();
+			else
+			{
+				CameraDirector.instance.CutTo(transform.position);
+				CameraDirector.instance.SetZoom(START_CAM_ZOOM + CAM_ZOOM_MIN);
+				SetFollow();
+			}
 		}
 
 		float x = Input.GetAxis("Horizontal");
@@ -77,7 +83,7 @@ public class ShipControl : MonoBehaviour
 
 	private void SetFollow()
 	{
-		CameraDirector.instance.FollowTarget(transform, 0.2f);
+		CameraDirector.instance.FollowTarget(transform, ANIM_SPEED);
 	}
 
 	private void StopFollow()

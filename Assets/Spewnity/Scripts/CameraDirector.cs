@@ -333,11 +333,17 @@ namespace Spewnity
 
         public CameraDirector RotateTo(float angle, float? speed = null)
         {
-            float z = cam.transform.localEulerAngles.z;
-            startRot = z > 180 ? z - 360 : z;
-            rotSpeed = rotTimeRemaining = (speed == null ? this.defSpeed : (float) speed);
-            targetRot = angle;
+            startRot = cam.transform.localEulerAngles.z;
+            rotSpeed = rotTimeRemaining = (speed == null ? this.defSpeed : (float)speed);
+            targetRot = ShortestRotation(startRot, angle);
             return this;
+        }
+
+        private static float ShortestRotation(float from, float to)
+        {
+            float diff = from - to;
+            float newTo = (diff < -180 ? to + 360 : (diff > 180 ? to - 360 : to));
+            return newTo;
         }
     }
 }
