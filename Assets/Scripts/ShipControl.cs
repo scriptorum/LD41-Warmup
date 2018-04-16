@@ -17,9 +17,9 @@ public class ShipControl : MonoBehaviour
 	private readonly float FLYING_CAM_ZOOM = 0.6f;
 	private readonly float SIDE_THRUST_BURST = 3f;
 	private readonly int MIN_SIDE_THRUST_BURST = 1;
-    private readonly float ROTATE_SPEED = 180f;
+	private readonly float ROTATE_SPEED = 180f;
 
-    void Awake()
+	void Awake()
 	{
 		gameObject.SelfAssign<Rigidbody2D>(ref rb);
 		aftThruster = gameObject.GetChildComponent<ParticleSystem>("AftThruster");
@@ -42,8 +42,10 @@ public class ShipControl : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 90f : 0f));
-			if (sideways) CameraDirector.instance.CutTo(new Vector3(transform.position.x - Camera.main.orthographicSize * 3/4, transform.position.y, transform.position.z));
+			CameraDirector.instance.Stop().SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 90f : 0f));
+			Input.ResetInputAxes();
+
+			if (sideways) CameraDirector.instance.CutTo(transform.position); 
 			else SetFollow();
 		}
 
@@ -53,12 +55,12 @@ public class ShipControl : MonoBehaviour
 		if (sideways)
 		{
 			Thrust(x);
-			CameraDirector.instance.SetZoom(START_CAM_ZOOM);
+			CameraDirector.instance.SetZoom(START_CAM_ZOOM + CAM_ZOOM_MIN);
 		}
 		else
 		{
 			Thrust(y);
-			SideThrust( y < 0 ? x : -x);
+			SideThrust(y < 0 ? x : -x);
 			CameraDirector.instance.SetZoom(Mathf.Abs(-y) * FLYING_CAM_ZOOM + CAM_ZOOM_MIN);
 		}
 	}
@@ -79,7 +81,7 @@ public class ShipControl : MonoBehaviour
 		rb.transform.Translate(0f, amount * Time.deltaTime * THRUST_SPEED, 0f, Space.Self);
 		int particles = Mathf.CeilToInt(Mathf.Abs(amount * Time.deltaTime * THRUST_BURST) + MIN_THRUST_BURST);
 		if (amount > 0f) aftThruster.Emit(particles);
-		else if (amount < 0f)  foreThruster.Emit(particles);
+		else if (amount < 0f) foreThruster.Emit(particles);
 	}
 
 	private void SideThrust(float amount)
@@ -88,13 +90,13 @@ public class ShipControl : MonoBehaviour
 		int particles = Mathf.CeilToInt(Mathf.Abs(amount * Time.deltaTime * SIDE_THRUST_BURST) + MIN_SIDE_THRUST_BURST);
 		if (amount < 0f)
 		{
-			 aftStarboardThruster.Emit(particles);
-			 forePortThruster.Emit(particles);
+			aftStarboardThruster.Emit(particles);
+			forePortThruster.Emit(particles);
 		}
 		else if (amount > 0f)
 		{
-			aftPortThruster.Emit(particles);		
-			foreStarboardThruster.Emit(particles);		
+			aftPortThruster.Emit(particles);
+			foreStarboardThruster.Emit(particles);
 		}
 	}
 }

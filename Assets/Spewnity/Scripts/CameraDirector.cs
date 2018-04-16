@@ -180,9 +180,10 @@ namespace Spewnity
         /// Starts the camera shake as defined by the default properties. 
         /// <see cref="Shake(float,float,bool)"/>
         /// </summary>
-        public void Shake()
+        public CameraDirector Shake()
         {
             Shake(defShakeStrength, defShakeDuration, shakeFadeOut);
+            return this;
         }
 
         /// <summary>
@@ -193,51 +194,66 @@ namespace Spewnity
         /// <param name="shakeStrength">How far the camera can veer off-center +/-. </param>
         /// <param name="shakeDuration">How long the shaking lasts.</param>
         /// <param name="fadeStrength">If true, the strength is linearly reduced over the time of the shaking.</param>
-        public void Shake(float shakeStrength, float shakeDuration, bool fadeStrength = true)
+        public CameraDirector Shake(float shakeStrength, float shakeDuration, bool fadeStrength = true)
         {
             this.shakeStrength = shakeStrength;
             this.shakeDuration = shakeTimeRemaining = shakeDuration;
             fadingShake = fadeStrength;
             camCenter = (useCameraMain ? Camera.main.transform.position : transform.position);
+            return this;
         }
 
         /// <summary>
         /// Stops any dollying or following of a target. Clears the target.
         /// <para>Does not stop shaking or zooming</para>
         /// </summary>
-        public void StopMoving()
+        public CameraDirector StopMoving()
         {
             followTarget = null;
             dollying = false;
+            return this;
         }
 
         /// <summary>
         /// Stops all camera shaking
         /// </summary>
-        public void StopShaking()
+        public CameraDirector StopShaking()
         {
             shakeTimeRemaining = 0f;
+            return this;
         }
 
         /// <summary>
         /// Stops any active zooming operation.
         /// </summary>
-        public void StopZooming()
+        public CameraDirector StopZooming()
         {
             zoomTimeRemaining = 0f;
+            return this;
         }
 
-        public void StopRotating()
+        public CameraDirector StopRotating()
         {
             rotTimeRemaining = 0f;
+            return this;
+        }
+
+        public CameraDirector Stop()
+        {
+            StopMoving();
+            StopRotating();
+            StopShaking();
+            StopZooming();
+            return this;
         }
 
         /// <summary>
         /// Resets the zoom level to its initial value.
         /// </summary>
-        public void ResetZoom()
+        public CameraDirector ResetZoom()
         {
             SetZoom(1f);
+            return this;
         }
 
         /// <summary>
@@ -246,11 +262,12 @@ namespace Spewnity
         /// </summary>
         /// <param name="target">The Transform of the GameObject to follow; the camera will center over this object</param>
         /// <param name="speed">The amount of time the camera will take to catch up to the target. Supply 0 if you don't want any camera lag.</param>
-        public void FollowTarget(Transform target, float? speed = null)
+        public CameraDirector FollowTarget(Transform target, float? speed = null)
         {
             StopMoving();
             this.followTarget = target;
             this.moveSpeed = (speed == null ? this.defSpeed : (float) speed);
+            return this;
         }
 
         /// <summary>
@@ -258,11 +275,12 @@ namespace Spewnity
         /// <para>If the CameraDirector was dollying or following a target, it stops doing that.</para>
         /// </summary>
         /// <param name="position">Sets the absolute center point of the camera</param>
-        public void CutTo(Vector2 position)
+        public CameraDirector CutTo(Vector2 position)
         {
             StopMoving();
             cam.transform.position = new Vector3(position.x, position.y, cam.transform.position.z);
             camCenter = cam.transform.position;
+            return this;
         }
 
         /// <summary>
@@ -272,12 +290,13 @@ namespace Spewnity
         /// </summary>
         /// <param name="position">Sets the desired absolute center point of the camera</param>
         /// <param name="speed">If not provided, uses the default move speed. Using a speed 0 will work the same as CutTo().</param>
-        public void DollyTo(Vector2 position, float? speed = null)
+        public CameraDirector DollyTo(Vector2 position, float? speed = null)
         {
             StopMoving();
             camCenter = new Vector3(position.x, position.y, cam.transform.position.z);
             dollying = true;
             this.moveSpeed = (speed == null ? this.defSpeed : (float) speed);
+            return this;
         }
 
         /// <summary>
@@ -286,13 +305,14 @@ namespace Spewnity
         /// <see crf="Zoom"/> for more information
         /// </summary>
         /// <param name="scale">The amount to scale orthographic size or field-of-view. 1 is none.</param>
-        public void SetZoom(float scale)
+        public CameraDirector SetZoom(float scale)
         {
             StopZooming();
             float amount = startZoom * scale;
             if (cam.orthographic)
                 cam.orthographicSize = amount;
             else cam.fieldOfView = amount;
+            return this;
         }
 
         /// <summary>
@@ -303,24 +323,27 @@ namespace Spewnity
         /// </summary>
         /// <param name="scale">The amount to scale orthographic size or field-of-view. A value of 2 is zoomed out to show double the view, and 0.5 zoomed in to halve the view. 1 resets to the initial size. </param>
         /// <param name="speed">The amount of time before it reaches the target scale.</param>
-        public void ZoomTo(float scale, float? speed = null)
+        public CameraDirector ZoomTo(float scale, float? speed = null)
         {
             zoomSpeed = zoomTimeRemaining = (speed == null ? this.defSpeed : (float) speed);
             targetZoom = startZoom * scale;
+            return this;
         }
 
-        public void SetRotation(float angle)
+        public CameraDirector SetRotation(float angle)
         {
             StopRotating();
             cam.transform.localRotation = Quaternion.Euler(0, 0, angle);
+            return this;
         }
 
-        public void RotateTo(float angle, float? speed = null)
+        public CameraDirector RotateTo(float angle, float? speed = null)
         {
             float z = cam.transform.localEulerAngles.z;
             startRot = z > 180 ? z - 360 : z;
             rotSpeed = rotTimeRemaining = (speed == null ? this.defSpeed : (float) speed);
             targetRot = angle;
+            return this;
         }
     }
 }
