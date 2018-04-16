@@ -58,10 +58,11 @@ public class ShipControl : MonoBehaviour
 			}
 			else
 			{
-				CameraDirector.instance.CutTo(transform.position);
-				CameraDirector.instance.SetZoom(START_CAM_ZOOM + CAM_ZOOM_MIN);
+				CameraDirector.instance.DollyTo(transform.position, ANIM_SPEED);
 				SetFollow();
 			}
+			
+			CameraDirector.instance.ZoomTo(START_CAM_ZOOM + CAM_ZOOM_MIN, ANIM_SPEED);
 		}
 
 		float x = Input.GetAxis("Horizontal");

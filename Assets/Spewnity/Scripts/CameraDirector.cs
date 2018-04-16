@@ -342,8 +342,7 @@ namespace Spewnity
         private static float ShortestRotation(float from, float to)
         {
             float diff = from - to;
-            float newTo = (diff < -180 ? to + 360 : (diff > 180 ? to - 360 : to));
-            return newTo;
+            return (diff < -180 ? to + 360 : (diff > 180 ? to - 360 : to));
         }
     }
 }
