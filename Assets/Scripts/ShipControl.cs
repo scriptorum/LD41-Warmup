@@ -9,8 +9,8 @@ public class ShipControl : MonoBehaviour
 
 	private Rigidbody2D rb;
 	private ParticleSystem foreThruster, aftThruster, aftPortThruster, aftStarboardThruster, forePortThruster, foreStarboardThruster;
-    private float camSize;
-    private readonly float THRUST_SPEED = 25f;
+	private float camSize;
+	private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
 	private readonly float CAM_ZOOM_MIN = 1f;
@@ -19,9 +19,9 @@ public class ShipControl : MonoBehaviour
 	private readonly float SIDE_THRUST_BURST = 3f;
 	private readonly int MIN_SIDE_THRUST_BURST = 1;
 	private readonly float ROTATE_SPEED = 180f;
-    private readonly float PADDLE_OFFSET = 4f / 5f;
+	private readonly float PADDLE_OFFSET = 4f / 5f;
 
-    void Awake()
+	void Awake()
 	{
 		gameObject.SelfAssign<Rigidbody2D>(ref rb);
 		aftThruster = gameObject.GetChildComponent<ParticleSystem>("AftThruster");
@@ -55,11 +55,7 @@ public class ShipControl : MonoBehaviour
 				CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
 				CameraDirector.instance.CutTo(pos);
 			}
-			else 
-			{
-				CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z);
-				SetFollow();
-			}
+			else SetFollow();
 		}
 
 		float x = Input.GetAxis("Horizontal");
@@ -75,6 +71,7 @@ public class ShipControl : MonoBehaviour
 			Thrust(y);
 			SideThrust(y < 0 ? x : -x);
 			CameraDirector.instance.SetZoom(Mathf.Abs(-y) * FLYING_CAM_ZOOM + CAM_ZOOM_MIN);
+			CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z);
 		}
 	}
 
