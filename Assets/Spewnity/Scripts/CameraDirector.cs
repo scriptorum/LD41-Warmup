@@ -31,8 +31,8 @@ namespace Spewnity
         public bool shakeFadeOut = true;
         [Tooltip("Lets you preview the camera shake effect, when debugging in the editor, in play mode; just click")]
         public bool previewShake = false;
-        [Tooltip("If true, assumes Camera.main is the camera; otherwise expects this component is attached to a Camera object")]
-        public bool useCameraMain = false;
+        [Tooltip("Assigns the camera to use for this instance; leave blank to use Camera.main")]
+        public Camera cam;
 
         private const float CONTINUOUS_EASING = 4.6f; // Gets us to 99% of move target over duration
         private Transform followTarget;
@@ -42,8 +42,7 @@ namespace Spewnity
         private bool fadingShake = false;
         private bool dollying = false;
         private float shakeTimeRemaining = 0f;
-        private Vector3 camCenter;
-        private Camera cam;
+        private Vector3 shakeCenter;
         private float startZoom;
         private float targetZoom;
         private float zoomTimeRemaining = 0f;
@@ -56,27 +55,23 @@ namespace Spewnity
         void Awake()
         {
             instance = this;
-            UpdateCamera();
+            Init();
         }
 
 #if UNITY_EDITOR
         void OnValidate()
         {
-            UpdateCamera();
+            Init();
         }
 #endif
 
-        private void UpdateCamera()
+        private void Init()
         {
-            cam = (useCameraMain ? Camera.main : gameObject.GetComponent<Camera>());
             if (cam == null)
-            {
-                if (useCameraMain)
-                    throw new UnityException("Cannot locate main camera");
-                else throw new UnityException("Since useCameraMain is disabled, CameraDirector must be attached to the camera GameObject");
-            }
-            else startZoom = cam.orthographic ? cam.orthographicSize : cam.fieldOfView;
+                cam = Camera.main;
+            startZoom = cam.orthographic ? cam.orthographicSize : cam.fieldOfView;
         }
+
         void Update()
         {
 #if UNITY_EDITOR			
@@ -98,11 +93,11 @@ namespace Spewnity
             UpdateCamCenter();
             Vector2 shake = GetShakeOffset();
             if (!dollying && moveSpeed <= 0f)
-                cam.transform.position = camCenter + (Vector3) shake;
+                cam.transform.position = shakeCenter + (Vector3) shake;
             else
             {
                 float t = CONTINUOUS_EASING * Time.deltaTime / moveSpeed;
-                cam.transform.position = Vector3.Lerp(cam.transform.position, camCenter, t) + (Vector3) shake;
+                cam.transform.position = Vector3.Lerp(cam.transform.position, shakeCenter, t) + (Vector3) shake;
             }
         }
 
@@ -153,8 +148,7 @@ namespace Spewnity
         private void UpdateCamCenter()
         {
             if (followTarget != null)
-                camCenter = new Vector3(followTarget.position.x, followTarget.position.y,
-                    (useCameraMain ? Camera.main.transform.position.z : transform.position.z));
+                shakeCenter = new Vector3(followTarget.position.x, followTarget.position.y, cam.transform.position.z);
         }
 
         private Vector2 GetShakeOffset()
@@ -199,7 +193,7 @@ namespace Spewnity
             this.shakeStrength = shakeStrength;
             this.shakeDuration = shakeTimeRemaining = shakeDuration;
             fadingShake = fadeStrength;
-            camCenter = (useCameraMain ? Camera.main.transform.position : transform.position);
+            shakeCenter = cam.transform.position;
             return this;
         }
 
@@ -279,7 +273,7 @@ namespace Spewnity
         {
             StopMoving();
             cam.transform.position = new Vector3(position.x, position.y, cam.transform.position.z);
-            camCenter = cam.transform.position;
+            shakeCenter = cam.transform.position;
             return this;
         }
 
@@ -293,7 +287,7 @@ namespace Spewnity
         public CameraDirector DollyTo(Vector2 position, float? speed = null)
         {
             StopMoving();
-            camCenter = new Vector3(position.x, position.y, cam.transform.position.z);
+            shakeCenter = new Vector3(position.x, position.y, cam.transform.position.z);
             dollying = true;
             this.moveSpeed = (speed == null ? this.defSpeed : (float) speed);
             return this;

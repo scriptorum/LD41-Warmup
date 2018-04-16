@@ -9,7 +9,8 @@ public class ShipControl : MonoBehaviour
 
 	private Rigidbody2D rb;
 	private ParticleSystem foreThruster, aftThruster, aftPortThruster, aftStarboardThruster, forePortThruster, foreStarboardThruster;
-	private readonly float THRUST_SPEED = 25f;
+    private float camSize;
+    private readonly float THRUST_SPEED = 25f;
 	private readonly float THRUST_BURST = 30f;
 	private readonly int MIN_THRUST_BURST = 5;
 	private readonly float CAM_ZOOM_MIN = 1f;
@@ -18,8 +19,9 @@ public class ShipControl : MonoBehaviour
 	private readonly float SIDE_THRUST_BURST = 3f;
 	private readonly int MIN_SIDE_THRUST_BURST = 1;
 	private readonly float ROTATE_SPEED = 180f;
+    private readonly float PADDLE_OFFSET = 4f / 5f;
 
-	void Awake()
+    void Awake()
 	{
 		gameObject.SelfAssign<Rigidbody2D>(ref rb);
 		aftThruster = gameObject.GetChildComponent<ParticleSystem>("AftThruster");
@@ -32,8 +34,9 @@ public class ShipControl : MonoBehaviour
 
 	void Start()
 	{
-		SetFollow();
+		camSize = CameraDirector.instance.cam.orthographicSize;
 		CameraDirector.instance.SetZoom(START_CAM_ZOOM + CAM_ZOOM_MIN);
+		SetFollow();
 	}
 
 	// Update is called once per frame
@@ -42,11 +45,21 @@ public class ShipControl : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
 			sideways = !sideways;
-			CameraDirector.instance.Stop().SetRotation(transform.localRotation.eulerAngles.z + (sideways ? 90f : 0f));
+			CameraDirector.instance.Stop().CutTo(transform.position);
 			Input.ResetInputAxes();
 
-			if (sideways) CameraDirector.instance.CutTo(transform.position); 
-			else SetFollow();
+			if (sideways)
+			{
+				Vector3 pos = transform.position - (transform.right * camSize * PADDLE_OFFSET);
+				Debug.Log("Pos:" + transform.position + " right:" + transform.right + " camSize:" + camSize + " newPosition:" + pos);
+				CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z + 90f);
+				CameraDirector.instance.CutTo(pos);
+			}
+			else 
+			{
+				CameraDirector.instance.SetRotation(transform.localRotation.eulerAngles.z);
+				SetFollow();
+			}
 		}
 
 		float x = Input.GetAxis("Horizontal");
@@ -78,7 +91,7 @@ public class ShipControl : MonoBehaviour
 
 	private void Thrust(float amount)
 	{
-		rb.transform.Translate(0f, amount * Time.deltaTime * THRUST_SPEED, 0f, Space.Self);
+		transform.Translate(0f, amount * Time.deltaTime * THRUST_SPEED, 0f, Space.Self);
 		int particles = Mathf.CeilToInt(Mathf.Abs(amount * Time.deltaTime * THRUST_BURST) + MIN_THRUST_BURST);
 		if (amount > 0f) aftThruster.Emit(particles);
 		else if (amount < 0f) foreThruster.Emit(particles);
