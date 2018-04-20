@@ -138,7 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 239614177}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 091992d99ebf549f59de068d6b676fdf, type: 3}
+  m_Script: {fileID: 11500000, guid: a416eacca8e9746f788446a56edf411c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parallax: {x: 0.08, y: 0.08}
@@ -183,10 +183,10 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 100, y: 100}
+  m_Size: {x: 50, y: 50}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
 --- !u!4 &239614180
 Transform:
@@ -347,7 +347,7 @@ MonoBehaviour:
   defSpeed: 1
   shakeFadeOut: 1
   previewShake: 0
-  useCameraMain: 1
+  cam: {fileID: 1820375185}
 --- !u!1 &377393319
 GameObject:
   m_ObjectHideFlags: 0
@@ -9698,7 +9698,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 848374138}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 091992d99ebf549f59de068d6b676fdf, type: 3}
+  m_Script: {fileID: 11500000, guid: a416eacca8e9746f788446a56edf411c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parallax: {x: 0.03, y: 0.03}
@@ -14477,7 +14477,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1029467765}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 091992d99ebf549f59de068d6b676fdf, type: 3}
+  m_Script: {fileID: 11500000, guid: a416eacca8e9746f788446a56edf411c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parallax: {x: 0.001, y: 0.001}
@@ -23822,7 +23822,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1971877919}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 091992d99ebf549f59de068d6b676fdf, type: 3}
+  m_Script: {fileID: 11500000, guid: a416eacca8e9746f788446a56edf411c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   parallax: {x: 0.02, y: 0.02}

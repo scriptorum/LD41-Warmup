@@ -2,16 +2,12 @@
 using UnityEngine;
 
 /**
- * Parallax behavior.
- * Attach this to the object that you wish to move in a parallax manner. 
- * This object should probably be a child of the camera.
- * Measure the extents of the camera movement and the extents this object local to the camera.
- * If only wish to parallax on one axis, leave the extents for the other axis at 0.
- **/
+ * Place this on any sprite. This generates a repeating or random background with parallaxing support.
+ */
 namespace Spewnity
 {
 	[ExecuteInEditMode]
-	public class Parallax : MonoBehaviour
+	public class Background : MonoBehaviour
 	{
 		public Vector2 parallax = Vector3.one;
 		public Camera cam;
