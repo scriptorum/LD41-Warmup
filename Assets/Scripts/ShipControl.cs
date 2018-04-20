@@ -55,15 +55,14 @@ public class ShipControl : MonoBehaviour
 				Vector3 pos = transform.position - (transform.right * camSize * PADDLE_OFFSET);
 				CameraDirector.instance.RotateTo(transform.localRotation.eulerAngles.z + 90f, ANIM_SPEED);
 				CameraDirector.instance.DollyTo(pos, ANIM_SPEED);
+//				CameraDirector.instance.ZoomTo(START_CAM_ZOOM + CAM_ZOOM_MIN);
 			}
 			else
 			{
 				CameraDirector.instance.DollyTo(transform.position, ANIM_SPEED);
-				CameraDirector.instance.RotateTo(transform.localRotation.eulerAngles.z, ANIM_SPEED);
+				CameraDirector.instance.ZoomTo(START_CAM_ZOOM + CAM_ZOOM_MIN, ANIM_SPEED);
 				SetFollow();
 			}
-
-			CameraDirector.instance.ZoomTo(START_CAM_ZOOM + CAM_ZOOM_MIN, ANIM_SPEED);
 		}
 
 		float x = Input.GetAxis("Horizontal");
