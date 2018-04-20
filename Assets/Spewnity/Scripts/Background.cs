@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Spewnity;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace Spewnity
 	public class Background : MonoBehaviour
 	{
 		private SpriteRenderer sr;
+		private float camWidth, camHeight;
+		private int lastScreenWidth;
 
 		public Vector2 parallax = Vector2.one; // Optional parallax behavior
 
@@ -31,26 +34,35 @@ namespace Spewnity
 		{
 			if (cam == null)
 				cam = Camera.main;
+			UpdateDimensions();
 
 			if (sr == null)
 				gameObject.Assign<SpriteRenderer>(ref sr);
+			UpdateSprite();
+		}
 
-			if (sr.drawMode == SpriteDrawMode.Simple)
-			{
-				sr.drawMode = SpriteDrawMode.Tiled;
-				// sr.size = Vector4.zero;
-			}
+		private void UpdateDimensions()
+		{
+			if (lastScreenWidth == Screen.width)
+				return;
+
+			camHeight = cam.orthographicSize;
+			camWidth = 2.0f * ((float) Screen.width / (float) Screen.height) * cam.orthographicSize;
+			lastScreenWidth = Screen.width;
 		}
 
 		public void Update()
 		{
-			if (parallax != Vector2.one)
-			{
-				Vector3 pos = new Vector3(cam.transform.position.x - cam.transform.position.x * parallax.x,
-					cam.transform.position.y - cam.transform.position.y * parallax.y, transform.position.z);
+			UpdateDimensions();
+			Vector3 pos = new Vector3(cam.transform.position.x - cam.transform.position.x * parallax.x,
+				cam.transform.position.y - cam.transform.position.y * parallax.y, transform.position.z);
+		}
 
-				transform.position = pos;
-			}
+		private void UpdateSprite()
+		{
+			// sr.drawMode = SpriteDrawMode.Tiled;
+			// sr.size = new Vector2(Mathf.CeilToInt(camWidth), Mathf.CeilToInt(camHeight));
+
 		}
 	}
 }

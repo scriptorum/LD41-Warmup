@@ -25,7 +25,7 @@ public class ShipControl : MonoBehaviour
 
 	void Awake()
 	{
-		gameObject.Assign<Rigidbody2D>(ref rb);
+		gameObject.Assign(ref rb);
 		aftThruster = gameObject.GetChildComponent<ParticleSystem>("AftThruster");
 		foreThruster = gameObject.GetChildComponent<ParticleSystem>("ForeThruster");
 		aftPortThruster = gameObject.GetChildComponent<ParticleSystem>("AftPortThruster");
