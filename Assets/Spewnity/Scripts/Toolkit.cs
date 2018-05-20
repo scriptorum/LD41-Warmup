@@ -297,10 +297,14 @@ namespace Spewnity
         /// <summary>
         /// Joins an array or list of some type into a comma separated string
         /// </summary>
-        public static string Join<T>(this IList<T> iList, string delim = ",")
+        public static string Join<T>(this IList<T> iList, string delim = ",", string onNull = null)
         {
             if (iList == null || delim == null)
-                throw new System.ArgumentException();
+            {
+                if (onNull == null)
+                    throw new System.ArgumentException();
+                return onNull;
+            }
 
             string ret = "";
             foreach (T t in iList)
@@ -411,6 +415,23 @@ namespace Spewnity
             if (component == null)
                 throw new UnityException("Cannot find component " + typeof(T).ToString() + " in GameObject at path " + path);
             return component;
+        }
+
+        /// <summary>
+        /// Adds a copy of the specified component to this game object.
+        /// </summary>
+        /// <param name="go">The game object to receive the new component copy</param>
+        /// <param name="component">The component to copy</param>
+        public static void AddComponent(this GameObject go, Component component)
+        {
+            System.Type type = component.GetType();
+            Component copy = go.AddComponent(type);
+            PropertyInfo[] propInfo = type.GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance);
+            foreach (var prop in propInfo)
+            {
+                if (prop.Name == "rect") continue;
+                prop.SetValue(copy, prop.GetValue(component, null), null);
+            }
         }
 
         /// <summary>

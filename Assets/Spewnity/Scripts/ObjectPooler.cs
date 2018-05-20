@@ -21,7 +21,7 @@ namespace Spewnity
         [Reposition("name", "prefab")]
         [Tooltip("All of the GameObjectPools managed by the ObjectPooler")]
         public List<GameObjectPool> pools;
-        
+
         [Tooltip("One ObjectPooler is assigned to ObjectPooler.instance; if true (and this is the only ObjectPooler so marked) this will be the instance")]
         public bool primaryInstance;
 
@@ -146,7 +146,7 @@ namespace Spewnity
 
         [Tooltip("Events! We all love events!")]
         public PoolEvents events;
-        
+
         [HideInInspector]
         public bool initialized; // Used by ObjectPooler
 
@@ -155,15 +155,26 @@ namespace Spewnity
         /// </summary>
         protected override GameObject Create()
         {
-            if (prefab == null)
-                throw new UnityException("Missing prefab for pool '" + name + "'");
-            GameObject go = GameObject.Instantiate(prefab);
+            GameObject go = createGameObject();
             go.name = name + "#" + (Size + 1);
             go.SetActive(false);
             go.transform.SetParent(parent, false);
-            events.Create.Invoke(go);
+            if (events.Create != null)
+                events.Create.Invoke(go);
             return go;
         }
+
+        public GameObject DefaultCreateGameObject()
+        {
+            if (prefab == null)
+                throw new UnityException("Missing prefab for pool '" + name + "'");
+            GameObject go = GameObject.Instantiate(prefab);
+            return go;
+        }
+
+        public delegate GameObject CreateGameObjectDelegate();
+
+        public CreateGameObjectDelegate createGameObject;
 
         /// <summary>
         /// GameObject-specific preparations before returning a usable GameObject.
@@ -172,7 +183,8 @@ namespace Spewnity
         protected override void Prepare(GameObject go)
         {
             go.SetActive(true);
-            events.Prepare.Invoke(go);
+            if (events.Prepare != null)
+                events.Prepare.Invoke(go);
         }
 
         /// <summary>
@@ -183,7 +195,13 @@ namespace Spewnity
         {
             go.transform.SetParent(parent, false);
             go.SetActive(false);
-            events.Recycle.Invoke(go);
+            if (events.Recycle != null)
+                events.Recycle.Invoke(go);
+        }
+
+        public GameObjectPool()
+        {
+            createGameObject = DefaultCreateGameObject;
         }
     }
 
@@ -225,13 +243,13 @@ namespace Spewnity
     public class ObjectPool<T> where T : class
     {
         [Tooltip("The number of objects to create when the pool is created")]
-        public int minSize = 5;
+        public int minSize = 0;
 
         [Tooltip("The maximum number of objects in the pool; -1 means unlimited, 0 caps any further growth")]
         public int maxSize = UNLIMITED;
 
         [Tooltip("The number of objects to create when any objects are created")]
-        public int growRate = 5;
+        public int growRate = 1;
 
         [HideInInspector]
         [Tooltip("The objects in the pool ready to be used")]
@@ -371,7 +389,7 @@ namespace Spewnity
         /// </summary>
         protected virtual T Create()
         {
-            return (T) System.Activator.CreateInstance(typeof (T));
+            return (T) System.Activator.CreateInstance(typeof(T));
         }
 
         /// <summary>
@@ -392,16 +410,16 @@ namespace Spewnity
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof (PoolStatus))]
+    [CustomPropertyDrawer(typeof(PoolStatus))]
     public class PoolStatusPD : PropertyDrawer
     {
         public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label)
         {
-            if(prop == null)
+            if (prop == null)
                 return;
-            
+
             string parentPath = prop.propertyPath.Substring(0, prop.propertyPath.LastIndexOf("."));
-            SerializedProperty gopProp = prop.serializedObject.FindProperty(parentPath);            
+            SerializedProperty gopProp = prop.serializedObject.FindProperty(parentPath);
 
             float x = EditorGUIUtility.labelWidth + pos.x;
             float h = EditorGUIUtility.singleLineHeight;
@@ -413,7 +431,7 @@ namespace Spewnity
             int maxSize = gopProp.FindPropertyRelative("maxSize").intValue;
             int availableSize = gopProp.FindPropertyRelative("available").arraySize;
             int busySize = gopProp.FindPropertyRelative("busy").arraySize;
-            string str = availableSize + " ready, " + busySize + " busy, " + (maxSize <= GameObjectPool.UNLIMITED ? 
+            string str = availableSize + " ready, " + busySize + " busy, " + (maxSize <= GameObjectPool.UNLIMITED ?
                 "unlimited" : (maxSize - (availableSize + busySize)).ToString() + " potential");
             GUIStyle style = new GUIStyle(GUI.skin.label);
             GUIContent gc = new GUIContent(str);
