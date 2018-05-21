@@ -17,18 +17,32 @@ namespace Spewnity
 		private float camWidth, camHeight;
 		private int lastScreenWidth;
 		private GameObjectPool pool;
-
+		private int id = 0;
+		private Vector2 tileSize = Vector2Int.zero;
 		public Vector2 parallax = Vector2.one; // Optional parallax behavior
+		public Vector2Int repetitions; // Number of tiles repeated horizontally and vertically
 
 		public Camera cam;
 
 		public void Awake()
 		{
 			Init();
+
+			if (pool == null)
+			{
+				pool = new GameObjectPool();
+				pool.maxSize = -1;
+			}
+			pool.createGameObject = BuildGameObject;
+			pool.parent = transform;
+
+			UpdateCamSize();
+			RebuildSprites();
 		}
 
 		void Start() { }
 
+		// Init for both game awake and editor validation
 		public void Init()
 		{
 			if (cam == null)
@@ -36,53 +50,50 @@ namespace Spewnity
 
 			if (sr == null)
 				gameObject.Assign<SpriteRenderer>(ref sr);
-
-			if (pool == null)
-			{
-				pool = new GameObjectPool();
-				pool.maxSize = -1;
-			}
-
-			UpdateDimensions();
-			UpdateSpritePositions();
+			sr.enabled = false; // Disable main sprite
+			tileSize = sr.bounds.size;
 		}
 
-		private void UpdateDimensions()
+		private void CheckCamChange()
 		{
 			if (lastScreenWidth == Screen.width)
 				return;
 
-			camHeight = cam.orthographicSize;
-			camWidth = 2.0f * ((float) Screen.width / (float) Screen.height) * cam.orthographicSize;
-			lastScreenWidth = Screen.width;
-
+			UpdateCamSize();
 			RebuildSprites();
 		}
 
-		public void Update()
+		private void UpdateCamSize()
 		{
-			UpdateDimensions();
-			// Vector3 pos = new Vector3(cam.transform.position.x - cam.transform.position.x * parallax.x,
-			// 	cam.transform.position.y - cam.transform.position.y * parallax.y, transform.position.z);
-			// UpdateSpritePositions();
-			UpdateSpritePositions();
+			camHeight = cam.orthographicSize;
+			camWidth = 2.0f * ((float) Screen.width / (float) Screen.height) * cam.orthographicSize;
+			lastScreenWidth = Screen.width;
 		}
 
-		private void UpdateSpritePositions()
+		void OnValidate()
 		{
-			foreach (GameObject go in pool.busy)
+			// Determine how many sprites you need for scrolling
+			// If either value is set to 0, it will suggest a size at least twice as big as the current camera frustrum
+			if (repetitions.x == 0 || repetitions.y == 0)
 			{
-				BackgroundTile tile = go.GetComponent<BackgroundTile>();
-				go.transform.localPosition = new Vector3(tile.x * tile.size.x, tile.y * tile.size.y, 1);
-				Debug.Log("Tile size:" + tile.size.x + "x" + tile.size.y);
+				Init();
+				UpdateCamSize();
+				repetitions = new Vector2Int(Mathf.CeilToInt(camWidth * 2f / tileSize.x), Mathf.CeilToInt(camHeight * 2f / tileSize.y));
 			}
+		}
+
+		void Update()
+		{
+			CheckCamChange();
+			// Vector3 pos = new Vector3(cam.transform.position.x - cam.transform.position.x * parallax.x,
+			// 	cam.transform.position.y - cam.transform.position.y * parallax.y, transform.position.z);
 		}
 
 		private GameObject BuildGameObject()
 		{
-			GameObject go = new GameObject(this.name);
+			GameObject go = new GameObject(this.name + id++);
 			go.AddComponent(sr); // With copy of SpriteRenderer
-			go.transform.parent = transform;
+			go.transform.SetParent(pool.parent, false);
 			go.transform.rotation = transform.rotation;
 			go.AddComponent<BackgroundTile>();
 			return go;
@@ -93,17 +104,9 @@ namespace Spewnity
 			// Release all pool sprites
 			pool.ReleaseAll();
 
-			pool.createGameObject = BuildGameObject;
-			sr.enabled = false; // Disable main sprite
-
-			// Determine how many sprites you need for scrolling
-			Vector2 size = sr.bounds.size;
-			int width = Mathf.CeilToInt(camWidth * 2f / size.x);
-			int height = Mathf.CeilToInt(camHeight * 2f / size.y);
-
 			// Create those sprites in the right locations
-			for (int x = 0; x < width; x++)
-				for (int y = 0; y < height; y++)
+			for (int x = 0; x < repetitions.x; x++)
+				for (int y = 0; y < repetitions.y; y++)
 				{
 					if (pool.Size == pool.maxSize)
 						Debug.Log("Pool at max size");
@@ -112,17 +115,15 @@ namespace Spewnity
 					BackgroundTile tile = go.GetComponent<BackgroundTile>();
 					tile.x = x;
 					tile.y = y;
-					tile.size = size;
+					go.transform.localPosition = new Vector3(tile.x * tileSize.x - repetitions.x * tileSize.x / 2f,
+						tile.y * tileSize.y - repetitions.y * tileSize.y / 2f, 1);
 				}
-
-			// Update sprite positions
-			UpdateSpritePositions();
 		}
+
 		public class BackgroundTile : MonoBehaviour
 		{
 			public int x;
 			public int y;
-			public Vector2 size;
 		}
 	}
 

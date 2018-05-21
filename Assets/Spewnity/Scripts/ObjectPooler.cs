@@ -156,9 +156,7 @@ namespace Spewnity
         protected override GameObject Create()
         {
             GameObject go = createGameObject();
-            go.name = name + "#" + (Size + 1);
             go.SetActive(false);
-            go.transform.SetParent(parent, false);
             if (events.Create != null)
                 events.Create.Invoke(go);
             return go;
@@ -169,6 +167,8 @@ namespace Spewnity
             if (prefab == null)
                 throw new UnityException("Missing prefab for pool '" + name + "'");
             GameObject go = GameObject.Instantiate(prefab);
+            go.name = name + "#" + (Size + 1);
+            go.transform.SetParent(parent, false);
             return go;
         }
 
