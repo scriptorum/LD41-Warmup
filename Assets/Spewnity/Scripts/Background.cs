@@ -54,22 +54,6 @@ namespace Spewnity
 			tileSize = sr.bounds.size;
 		}
 
-		private void CheckCamChange()
-		{
-			if (lastScreenWidth == Screen.width)
-				return;
-
-			UpdateCamSize();
-			RebuildSprites();
-		}
-
-		private void UpdateCamSize()
-		{
-			camHeight = cam.orthographicSize;
-			camWidth = 2.0f * ((float) Screen.width / (float) Screen.height) * cam.orthographicSize;
-			lastScreenWidth = Screen.width;
-		}
-
 		void OnValidate()
 		{
 			// Determine how many sprites you need for scrolling
@@ -89,13 +73,28 @@ namespace Spewnity
 			// 	cam.transform.position.y - cam.transform.position.y * parallax.y, transform.position.z);
 		}
 
+		private void CheckCamChange()
+		{
+			if (lastScreenWidth == Screen.width)
+				return;
+
+			UpdateCamSize();
+			RebuildSprites();
+		}
+
+		private void UpdateCamSize()
+		{
+			camHeight = cam.orthographicSize;
+			camWidth = 2.0f * ((float) Screen.width / (float) Screen.height) * cam.orthographicSize;
+			lastScreenWidth = Screen.width;
+		}
+
 		private GameObject BuildGameObject()
 		{
 			GameObject go = new GameObject(this.name + id++);
 			go.AddComponent(sr); // With copy of SpriteRenderer
 			go.transform.SetParent(pool.parent, false);
 			go.transform.rotation = transform.rotation;
-			go.AddComponent<BackgroundTile>();
 			return go;
 		}
 
@@ -103,6 +102,10 @@ namespace Spewnity
 		{
 			// Release all pool sprites
 			pool.ReleaseAll();
+
+			// Determine half size of repeated background
+			Vector2 halfBg = new Vector2((repetitions.x - 1) * tileSize.x / 2f, (repetitions.y - 1) * tileSize.y / 2f);
+			Debug.Log("TileSize:" + tileSize.x + "x" + tileSize.y + " Repetitions:" + repetitions.x + "x" + repetitions.y + " HalfBG:" + halfBg.x + "," + halfBg.y);
 
 			// Create those sprites in the right locations
 			for (int x = 0; x < repetitions.x; x++)
@@ -112,18 +115,8 @@ namespace Spewnity
 						Debug.Log("Pool at max size");
 					GameObject go = pool.TryGet();
 					go.ThrowIfNull();
-					BackgroundTile tile = go.GetComponent<BackgroundTile>();
-					tile.x = x;
-					tile.y = y;
-					go.transform.localPosition = new Vector3(tile.x * tileSize.x - repetitions.x * tileSize.x / 2f,
-						tile.y * tileSize.y - repetitions.y * tileSize.y / 2f, 1);
+					go.transform.localPosition = new Vector3(x * tileSize.x - halfBg.x, y * tileSize.y - halfBg.y, 1);
 				}
-		}
-
-		public class BackgroundTile : MonoBehaviour
-		{
-			public int x;
-			public int y;
 		}
 	}
 
